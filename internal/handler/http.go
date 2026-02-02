@@ -1,9 +1,10 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/lanyi1998/DNSlog-GO/internal/model"
-	"net/http"
 )
 
 type VerifyHttpReq struct {
@@ -17,6 +18,7 @@ func VerifyHttp(c *gin.Context) {
 			Code: http.StatusBadRequest,
 			Msg:  "Invalid request body",
 		})
+		return
 	}
 	token := c.GetString("token")
 	for _, v := range model.UserDnsDataMap.Get(token) {
@@ -51,6 +53,7 @@ func BulkVerifyHttp(c *gin.Context) {
 			Code: http.StatusBadRequest,
 			Msg:  "Invalid request body",
 		})
+		return
 	}
 	token := c.GetString("token")
 	var respData []string
