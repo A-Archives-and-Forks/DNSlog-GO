@@ -3,16 +3,17 @@ package dns
 import (
 	"errors"
 	"fmt"
+	"net"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/lanyi1998/DNSlog-GO/internal/config"
 	"github.com/lanyi1998/DNSlog-GO/internal/ipwry"
 	"github.com/lanyi1998/DNSlog-GO/internal/logger"
 	"github.com/lanyi1998/DNSlog-GO/internal/model"
 	"go.uber.org/zap"
 	"golang.org/x/net/dns/dnsmessage"
-	"net"
-	"strings"
-	"sync"
-	"time"
 )
 
 var DnsARecordMap = sync.Map{}
@@ -22,7 +23,7 @@ var DnsTXTRecordMap = sync.Map{}
 func ListingDnsServer() {
 	conn, err := net.ListenUDP("udp", &net.UDPAddr{Port: 53})
 	if err != nil {
-		logger.Logger.Error("Dns port Listen error", zap.Error(err))
+		logger.Logger.Panic("Dns port Listen error", zap.Error(err))
 	}
 	defer conn.Close()
 	logger.Logger.Info("DNS Listing start success...")
@@ -62,7 +63,7 @@ func serverDNS(addr *net.UDPAddr, conn *net.UDPConn, msg dnsmessage.Message) {
 		user := config.Config.GetUserByDomain(queryDomain[len(queryDomain)-1])
 		IpLocation, _ := ipwry.Query(addr.IP.String())
 		model.UserDnsDataMap.Set(user, model.DnsInfo{
-			Type:       "DNS",
+			Type:       model.DNS,
 			Subdomain:  queryNameStr[:len(queryNameStr)-1],
 			Ipaddress:  addr.IP.String(),
 			Time:       time.Now().Unix(),

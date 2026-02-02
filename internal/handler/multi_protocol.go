@@ -4,17 +4,18 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"io"
+	"net"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/lanyi1998/DNSlog-GO/internal/config"
 	"github.com/lanyi1998/DNSlog-GO/internal/ipwry"
 	"github.com/lanyi1998/DNSlog-GO/internal/model"
 	"github.com/lanyi1998/DNSlog-GO/pkg/httpHandle"
 	"github.com/lanyi1998/DNSlog-GO/pkg/ldap"
 	"github.com/lanyi1998/DNSlog-GO/pkg/rmi"
-	"io"
-	"net"
-	"net/http"
-	"strings"
-	"time"
 )
 
 func MultiProtocolListener(ginEngine http.Handler, port int) error {
@@ -105,7 +106,7 @@ func handleConnection(conn net.Conn, ginHandler http.Handler) {
 					ipStr := strings.Split(conn.RemoteAddr().String(), ":")[0]
 					IpLocation, _ := ipwry.Query(ipStr)
 					model.UserDnsDataMap.Set(k, model.DnsInfo{
-						Type:       "LDAP",
+						Type:       model.LDAP,
 						Subdomain:  username,
 						Ipaddress:  ipStr,
 						Time:       time.Now().Unix(),
@@ -125,7 +126,7 @@ func handleConnection(conn net.Conn, ginHandler http.Handler) {
 					ipStr := strings.Split(conn.RemoteAddr().String(), ":")[0]
 					IpLocation, _ := ipwry.Query(ipStr)
 					model.UserDnsDataMap.Set(k, model.DnsInfo{
-						Type:       "RMI",
+						Type:      model.RMI,
 						Subdomain:  path,
 						Ipaddress:  ipStr,
 						Time:       time.Now().Unix(),

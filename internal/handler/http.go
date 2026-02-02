@@ -22,7 +22,7 @@ func VerifyHttp(c *gin.Context) {
 	}
 	token := c.GetString("token")
 	for _, v := range model.UserDnsDataMap.Get(token) {
-		if v.Subdomain == req.Query && v.Type == "HTTP" {
+		if v.Subdomain == req.Query && v.Type == model.Http {
 			c.JSON(http.StatusOK, Response{
 				Code: http.StatusOK,
 				Msg:  SUCCESS,
@@ -59,7 +59,7 @@ func BulkVerifyHttp(c *gin.Context) {
 	var respData []string
 	for _, v := range model.UserDnsDataMap.Get(token) {
 		for _, s := range req.Query {
-			if v.Subdomain == s && v.Type == "HTTP" {
+			if v.Subdomain == s && v.Type == model.Http {
 				respData = append(respData, s)
 			}
 		}

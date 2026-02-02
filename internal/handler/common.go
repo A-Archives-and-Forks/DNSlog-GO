@@ -2,15 +2,16 @@ package handler
 
 import (
 	"bytes"
-	"github.com/gin-gonic/gin"
-	"github.com/lanyi1998/DNSlog-GO/internal/config"
-	"github.com/lanyi1998/DNSlog-GO/internal/ipwry"
-	"github.com/lanyi1998/DNSlog-GO/internal/model"
 	"io"
 	"net/http"
 	"net/http/httputil"
 	"strings"
 	"time"
+	"unsafe"
+
+	"github.com/gin-gonic/gin"
+	"github.com/lanyi1998/DNSlog-GO/internal/ipwry"
+	"github.com/lanyi1998/DNSlog-GO/internal/model"
 )
 
 type Response struct {
@@ -39,24 +40,27 @@ func SafeDumpRequest(c *gin.Context) ([]byte, error) {
 }
 
 func NoRoute(c *gin.Context) {
-	for k, v := range config.Config.User {
-		if strings.HasPrefix(c.Request.URL.Path, "/"+v+"/") {
-			dump, err := SafeDumpRequest(c)
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
-				return
-			}
-			IpLocation, _ := ipwry.Query(c.ClientIP())
-			model.UserDnsDataMap.Set(k, model.DnsInfo{
-				Type:       "HTTP",
-				Subdomain:  c.Request.URL.Path,
-				Ipaddress:  c.ClientIP(),
-				Time:       time.Now().Unix(),
-				IpLocation: IpLocation,
-				Request:    string(dump),
-			})
-			break
+	subDoamin := strings.Split(c.Request.URL.Path,"/")
+	if len(subDoamin) < 2 {
+		c.JSON(http.StatusNotFound, gin.H{"message": "404 Not Found"})
+		return
+	}
+	token, ok := model.UserDnsDataMap.SubDomainTokenMap[subDoamin[1]]
+	if ok {
+		dump, err := SafeDumpRequest(c)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
+			return
 		}
+		IpLocation, _ := ipwry.Query(c.ClientIP())
+		model.UserDnsDataMap.Set(token, model.DnsInfo{
+			Type:       model.Http,
+			Subdomain:  c.Request.URL.Path,
+			Ipaddress:  c.ClientIP(),
+			Time:       time.Now().Unix(),
+			IpLocation: IpLocation,
+			Request:    unsafe.String(&dump[0], len(dump)),
+		})
 	}
 	c.JSON(http.StatusNotFound, gin.H{"message": "404 Not Found"})
 }

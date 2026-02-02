@@ -1,15 +1,17 @@
 package main
 
 import (
+	"os"
+
 	"github.com/gin-gonic/gin"
 	"github.com/lanyi1998/DNSlog-GO/internal/config"
 	"github.com/lanyi1998/DNSlog-GO/internal/dns"
 	"github.com/lanyi1998/DNSlog-GO/internal/handler"
 	"github.com/lanyi1998/DNSlog-GO/internal/logger"
+	"github.com/lanyi1998/DNSlog-GO/internal/model"
 	"github.com/lanyi1998/DNSlog-GO/internal/router"
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v2"
-	"os"
 )
 
 func readConfig() {
@@ -27,7 +29,7 @@ func main() {
 	logger.InitLogger()
 	defer logger.Sync()
 	readConfig()
-
+	model.UserDnsDataMap = model.NewDnsDataMap(config.Config.User)
 	go dns.ListingDnsServer()
 	gin.SetMode(gin.ReleaseMode)
 	r := router.SetupRouter()
