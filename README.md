@@ -164,7 +164,7 @@ func main() {
 
 ## Stargazers over time
 
-[![Stargazers over time](https://starchart.cc/lanyi1998/DNSlog-GO.svg)](https://starchart.cc/lanyi1998/DNSlog-GO)
+[![lanyi1998/DNSlog-GO GitStock K-Line Chart](https://gitstock.org/lanyi1998/DNSlog-GO/stock.svg)](https://gitstock.org/lanyi1998/DNSlog-GO)
 
 ## 404星链计划
 

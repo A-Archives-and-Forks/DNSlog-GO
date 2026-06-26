@@ -5,6 +5,6 @@ type DnsInfo struct {
 	Subdomain  string
 	Ipaddress  string
 	IpLocation string
-	Time       int64
 	Request    string
+	Time       int64
 }
